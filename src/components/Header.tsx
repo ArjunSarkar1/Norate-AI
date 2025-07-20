@@ -30,7 +30,7 @@ function Header() {
         ) : (
           <>
             <Button asChild className="hidden sm:block">
-              <Link href="/sign-up">Sign Up</Link>
+              <Link href="/signup">Sign Up</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/login">Login</Link>
