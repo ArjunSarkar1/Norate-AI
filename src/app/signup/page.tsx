@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, Github } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -43,13 +44,22 @@ export default function SignupPage() {
     }
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      // Simulate success
-      toast.success("Account created! You can now log in.");
-      // Redirect or update state here
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      // Supabase sign up
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name }, // Store name in user metadata
+        },
+      });
+      if (error) {
+        toast.error(error.message || "An error occurred. Please try again.");
+      } else {
+        toast.success("Account created! Please check your email to verify your account.");
+        // Optionally, redirect or clear form here
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }

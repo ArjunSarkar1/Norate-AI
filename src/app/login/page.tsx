@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, Github } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -45,18 +46,19 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Simulate success/failure
-      if (email === "demo@example.com" && password === "password") {
+      // Supabase sign in
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        toast.error(error.message || "Invalid email or password");
+      } else {
         toast.success("Successfully signed in!");
         // Redirect or update state here
-      } else {
-        toast.error("Invalid email or password");
       }
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
