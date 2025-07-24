@@ -55,6 +55,18 @@ export default function SignupPage() {
       if (error) {
         toast.error(error.message || "An error occurred. Please try again.");
       } else {
+        // Add user to Prisma DB
+        if (data.user) {
+          await fetch("/api/register-user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: data.user.id,
+              email: data.user.email,
+              name,
+            }),
+          });
+        }
         toast.success("Account created! Please check your email to verify your account.");
         // Optionally, redirect or clear form here
       }
