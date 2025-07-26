@@ -3,9 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import NoteList from "@/components/NoteList";
-import NoteEditor from "@/components/NoteEditor";
-import AIRecap from "@/components/AIRecap";
-import AISearch from "@/components/AISearch";
 import { usePathname } from "next/navigation";
 
 export default function DashboardPage() {
@@ -35,23 +32,12 @@ export default function DashboardPage() {
         </div>
       </aside>
       {/* Main Area */}
-      <main className="flex-1 p-8 space-y-8">
-        <section>
-          <h1 className="text-2xl font-bold mb-4">Your Notes</h1>
-          <NoteList />
-        </section>
-        <section>
-          <h2 className="text-xl font-semibold mb-2">Note Editor</h2>
-          <NoteEditor />
-        </section>
-        <section>
-          <h2 className="text-xl font-semibold mb-2">AI Recap</h2>
-          <AIRecap />
-        </section>
-        <section>
-          <h2 className="text-xl font-semibold mb-2">Semantic Search</h2>
-          <AISearch />
-        </section>
+      <main className="flex-1 p-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">Your Notes</h1>
+          <p className="text-muted-foreground">Create, organize, and find your notes with AI-powered search.</p>
+        </div>
+        <NoteList />
       </main>
     </div>
   );

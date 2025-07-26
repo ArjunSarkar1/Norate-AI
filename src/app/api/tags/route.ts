@@ -11,19 +11,12 @@ export async function GET(req: NextRequest) {
     }
 
     const tags = await prisma.tag.findMany({
-      include: {
-        notes: {
-          where: {
-            userId: user.id,
-          },
-        },
+      orderBy: {
+        name: "asc",
       },
     });
 
-    // Only return tags that have notes for this user
-    const userTags = tags.filter((tag: any) => tag.notes.length > 0);
-
-    return NextResponse.json({ tags: userTags });
+    return NextResponse.json({ tags });
   } catch (error) {
     console.error("Error fetching tags:", error);
     return NextResponse.json(
@@ -43,19 +36,17 @@ export async function POST(req: NextRequest) {
 
     const { name } = await req.json();
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
+    if (!name || name.trim().length === 0) {
       return NextResponse.json(
         { error: "Tag name is required" },
         { status: 400 }
       );
     }
 
-    const trimmedName = name.trim();
-
     // Check if tag already exists
     const existingTag = await prisma.tag.findUnique({
       where: {
-        name: trimmedName,
+        name: name.trim(),
       },
     });
 
@@ -66,7 +57,7 @@ export async function POST(req: NextRequest) {
     // Create the tag
     const tag = await prisma.tag.create({
       data: {
-        name: trimmedName,
+        name: name.trim(),
       },
     });
 
