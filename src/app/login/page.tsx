@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, Github } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [redirecting, setRedirecting] = useState(false);
+
+  const router = useRouter();
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -55,7 +59,10 @@ export default function LoginPage() {
         toast.error(error.message || "Invalid email or password");
       } else {
         toast.success("Successfully signed in!");
-        // Redirect or update state here
+        setRedirecting(true);
+        setTimeout(() => {
+          router.replace("/dashboard");
+        }, 1000); // Show loading for 1s before redirect
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred. Please try again.");
@@ -73,6 +80,17 @@ export default function LoginPage() {
     toast.info("Password reset link sent to your email");
     // Implement forgot password logic here
   };
+
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+          <span className="text-lg font-semibold">Loading your dashboard...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/50 dark:from-background dark:via-background dark:to-zinc-900/50 p-4">
