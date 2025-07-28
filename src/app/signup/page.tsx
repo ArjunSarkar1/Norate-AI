@@ -239,7 +239,7 @@ export default function SignupPage() {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or sign up with</span>
+                <span className="bg-card px-2 text-muted-foreground">Or</span>
               </div>
             </div>
             {/* Social Sign Up Buttons */}

@@ -5,7 +5,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 // GET /api/notes/[id] - Fetch single note
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -13,9 +13,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const note = await prisma.note.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id,
       },
       include: {
@@ -40,7 +41,7 @@ export async function GET(
 // PUT /api/notes/[id] - Update note
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -48,12 +49,13 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { title, content, summary, tagIds } = await req.json();
 
     // Check if note exists and belongs to user
     const existingNote = await prisma.note.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id,
       },
     });
@@ -65,7 +67,7 @@ export async function PUT(
     // Update the note
     const note = await prisma.note.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         title: title !== undefined ? title : undefined,
@@ -95,7 +97,7 @@ export async function PUT(
 // DELETE /api/notes/[id] - Delete note
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -103,10 +105,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     // Check if note exists and belongs to user
     const existingNote = await prisma.note.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id,
       },
     });
@@ -118,7 +121,7 @@ export async function DELETE(
     // Delete the note
     await prisma.note.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 

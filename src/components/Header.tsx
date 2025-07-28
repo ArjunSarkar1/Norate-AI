@@ -51,7 +51,12 @@ function Header() {
 
       <div className="flex gap-4">
         {user ? (
-          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+          <>
+            <Button asChild variant="outline" className="hidden sm:block">
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+          </>
         ) : (
           <>
             <Button asChild className="hidden sm:block">
