@@ -37,7 +37,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold mb-2">Your Notes</h1>
           <p className="text-muted-foreground">Create, organize, and find your notes with AI-powered search.</p>
         </div>
-        <NoteList />
+          <NoteList />
       </main>
     </div>
   );

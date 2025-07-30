@@ -257,7 +257,7 @@ export default function NoteList() {
                   </Button>
                 </div>
               </CardFooter>
-            </Card>
+    </Card>
           ))}
         </div>
       )}

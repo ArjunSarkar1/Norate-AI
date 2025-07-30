@@ -22,7 +22,7 @@ export default function DashboardLayout({
         return;
       }
       
-      setLoading(false);
+        setLoading(false);
     };
 
     checkAuth();
@@ -42,7 +42,7 @@ export default function DashboardLayout({
   }, [router]);
 
   if (loading) {
-    return (
+  return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin" />

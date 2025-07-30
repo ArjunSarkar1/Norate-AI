@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Save, ArrowLeft, Tag, Plus, Loader2 } from "lucide-react";
-import { EditorRoot, EditorContent } from "./editor";
-import StarterKit from "@tiptap/starter-kit";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authenticatedFetch } from "@/lib/utils";
 import { toast } from "sonner";
+import EnhancedEditor from "./EnhancedEditor";
 
 interface NoteEditorProps {
   noteId?: string;
@@ -296,18 +295,12 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
         {/* Editor */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Content</label>
-          <div className="border rounded-lg">
-            <EditorRoot>
-              <EditorContent
-                className="min-h-[400px] p-4 focus:outline-none"
-                extensions={[StarterKit]}
-                initialContent={content}
-                onUpdate={({ editor }) => {
-                  setContent(editor.getJSON());
-                }}
-              />
-            </EditorRoot>
-          </div>
+          <EnhancedEditor
+            content={content}
+            onUpdate={setContent}
+            placeholder="Start writing your note..."
+            className="min-h-[400px]"
+          />
         </div>
       </CardContent>
     </Card>
