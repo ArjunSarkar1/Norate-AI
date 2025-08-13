@@ -99,7 +99,7 @@ export default function EnhancedEditor({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none max-w-none [&_ol]:list-decimal [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:pl-6 [&_h1]:text-4xl [&_h2]:text-3xl [&_h3]:text-2xl [&_blockquote]:border-l-4 [&_blockquote]:relative [&_blockquote]:text-center [&_blockquote]:inline-block [&_blockquote]:mx-auto [&_blockquote]:pl-8 [&_blockquote]:pr-8 [&_blockquote]:max-w-2xl [&_blockquote]:text-muted-foreground [&_blockquote]:italic [&_blockquote]:my-4 [&_blockquote]:before:content-["“"] [&_blockquote]:before:text-4xl [&_blockquote]:before:absolute [&_blockquote]:before:left-2 [&_blockquote]:before:bottom-4 [&_blockquote]:before:block [&_blockquote]:after:content-["”"] [&_blockquote]:after:text-4xl [&_blockquote]:after:absolute [&_blockquote]:after:right-2 [&_blockquote]:first-letter:uppercase',
       },
     },
   });
@@ -247,7 +247,10 @@ export default function EnhancedEditor({
     <Button
       variant={isActive ? "default" : "ghost"}
       size="sm"
-      onClick={onClick}
+      onMouseDown={(e) => { // one click to select the button
+        e.preventDefault();
+        onClick();
+      }}
       className="h-8 w-8 p-0"
       title={shortcut ? `${title} (${shortcut})` : title}
     >
