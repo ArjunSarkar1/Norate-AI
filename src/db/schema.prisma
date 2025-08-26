@@ -1,35 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  notes     Note[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  notes     Note[]
+  tags      Tag[]
 }
 
 model Note {
-  id         String   @id @default(uuid())
-  title      String?  // AI-generated or user-provided
-  content    Json     // Rich text content from editor
-  summary    String?  // AI-generated summary
-  embedding  Float[]  // For semantic search (will be handled separately)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  tags       Tag[]    @relation("NoteTags")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  title     String?
+  content   Json
+  summary   String?
+  embedding Float[]
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  Tag       Tag[]    @relation("NoteTags")
 }
 
 model Tag {
-  id    String @id @default(uuid())
-  name  String @unique
-  notes Note[] @relation("NoteTags")
+  id     String  @id @default(uuid())
+  name   String  @unique
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Note   Note[]  @relation("NoteTags")
 }
