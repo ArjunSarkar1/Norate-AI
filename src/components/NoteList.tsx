@@ -1,19 +1,41 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, Edit, Trash2, Share2, Calendar, FileText, Tag } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  Edit,
+  Trash2,
+  Share2,
+  Calendar,
+  FileText,
+  Tag,
+} from "lucide-react";
 import Link from "next/link";
 import { authenticatedFetch } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Note {
   id: string;
   title: string | null;
-  content: any;
+  content: Record<string, unknown>;
   summary: string | null;
   tags: { id: string; name: string }[];
   createdAt: string;
@@ -37,9 +59,12 @@ export default function NoteList() {
       if (response.ok) {
         const data = await response.json();
         setNotes(data.notes);
+      } else {
+        toast.error("Failed to fetch notes. Please refresh the page.");
       }
     } catch (error) {
       console.error("Error fetching notes:", error);
+      toast.error("Something went wrong while fetching notes.");
     } finally {
       setLoading(false);
     }
@@ -50,13 +75,17 @@ export default function NoteList() {
       const response = await authenticatedFetch(`/api/notes/${noteId}`, {
         method: "DELETE",
       });
-      
+
       if (response.ok) {
-        setNotes(notes.filter(note => note.id !== noteId));
+        setNotes(notes.filter((note) => note.id !== noteId));
         setNoteToDelete(null);
+        toast.success("Note deleted successfully!");
+      } else {
+        toast.error("Failed to delete note. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting note:", error);
+      toast.error("Something went wrong while deleting the note.");
     }
   };
 
@@ -64,16 +93,16 @@ export default function NoteList() {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
+
     if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${Math.floor(diffInHours)} hours ago`;
     if (diffInHours < 48) return "Yesterday";
     return date.toLocaleDateString();
   };
 
-  const getContentPreview = (content: any) => {
+  const getContentPreview = (content: Record<string, unknown>) => {
     if (!content) return "No content";
-    
+
     // Extract plain text from TipTap JSON content
     let text = "";
     if (typeof content === "string") {
@@ -81,17 +110,17 @@ export default function NoteList() {
     } else if (content.content) {
       text = extractTextFromTiptap(content);
     }
-    
+
     return text.length > 150 ? text.substring(0, 150) + "..." : text;
   };
 
-  const extractTextFromTiptap = (content: any): string => {
-    if (!content.content) return "";
-    
+  const extractTextFromTiptap = (content: Record<string, unknown>): string => {
+    if (!content.content || !Array.isArray(content.content)) return "";
+
     let text = "";
-    content.content.forEach((node: any) => {
-      if (node.type === "text") {
-        text += node.text || "";
+    content.content.forEach((node: Record<string, unknown>) => {
+      if (node.type === "text" && typeof node.text === "string") {
+        text += node.text;
       } else if (node.content) {
         text += extractTextFromTiptap(node);
       }
@@ -99,18 +128,21 @@ export default function NoteList() {
     return text;
   };
 
-  const filteredNotes = notes.filter(note => {
-    const matchesSearch = searchQuery === "" || 
-      (note.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       getContentPreview(note.content).toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesTag = selectedTag === null || 
-      note.tags.some(tag => tag.id === selectedTag);
-    
+  const filteredNotes = notes.filter((note) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      note.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getContentPreview(note.content)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+    const matchesTag =
+      selectedTag === null || note.tags.some((tag) => tag.id === selectedTag);
+
     return matchesSearch && matchesTag;
   });
 
-  const allTags = Array.from(new Set(notes.flatMap(note => note.tags)));
+  const allTags = Array.from(new Set(notes.flatMap((note) => note.tags)));
 
   if (loading) {
     return (
@@ -154,12 +186,14 @@ export default function NoteList() {
           >
             All
           </Button>
-          {allTags.slice(0, 3).map(tag => (
+          {allTags.slice(0, 3).map((tag) => (
             <Button
               key={tag.id}
               variant={selectedTag === tag.id ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedTag(selectedTag === tag.id ? null : tag.id)}
+              onClick={() =>
+                setSelectedTag(selectedTag === tag.id ? null : tag.id)
+              }
             >
               <Tag className="h-3 w-3 mr-1" />
               {tag.name}
@@ -176,10 +210,9 @@ export default function NoteList() {
             <div>
               <h3 className="text-lg font-semibold">No notes found</h3>
               <p className="text-muted-foreground">
-                {searchQuery || selectedTag 
+                {searchQuery || selectedTag
                   ? "Try adjusting your search or filters"
-                  : "Create your first note to get started"
-                }
+                  : "Create your first note to get started"}
               </p>
             </div>
             {!searchQuery && !selectedTag && (
@@ -220,16 +253,20 @@ export default function NoteList() {
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="pb-3">
                 <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
                   {getContentPreview(note.content)}
                 </p>
-                
+
                 {note.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-3">
                     {note.tags.slice(0, 2).map((tag) => (
-                      <Badge key={tag.id} variant="secondary" className="text-xs">
+                      <Badge
+                        key={tag.id}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {tag.name}
                       </Badge>
                     ))}
@@ -241,42 +278,40 @@ export default function NoteList() {
                   </div>
                 )}
               </CardContent>
-              
+
               <CardFooter className="pt-0">
                 <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-3 w-3" />
                     {formatDate(note.updatedAt)}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                  >
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                     <Share2 className="h-3 w-3" />
                   </Button>
                 </div>
               </CardFooter>
-    </Card>
+            </Card>
           ))}
         </div>
       )}
-      
+
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!noteToDelete} onOpenChange={() => setNoteToDelete(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Note</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{noteToDelete?.title || 'Untitled Note'}"? This action cannot be undone.
+              Are you sure you want to delete "
+              {noteToDelete?.title || "Untitled Note"}"? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNoteToDelete(null)}>
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => noteToDelete && deleteNote(noteToDelete.id)}
             >
               Delete
@@ -286,4 +321,4 @@ export default function NoteList() {
       </Dialog>
     </div>
   );
-} 
+}

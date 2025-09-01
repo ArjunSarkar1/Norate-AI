@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 
+interface NoteTag {
+  tag: {
+    id: string;
+    name: string;
+  };
+}
+
 // GET /api/notes/[id] - Fetch single note
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -20,7 +27,11 @@ export async function GET(
         userId: user.id,
       },
       include: {
-        tags: true,
+        noteTags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
 
@@ -28,12 +39,18 @@ export async function GET(
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ note });
+    // Transform the data to match the expected format
+    const transformedNote = {
+      ...note,
+      tags: note.noteTags.map((noteTag: NoteTag) => noteTag.tag),
+    };
+
+    return NextResponse.json({ note: transformedNote });
   } catch (error) {
     console.error("Error fetching note:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -41,7 +58,7 @@ export async function GET(
 // PUT /api/notes/[id] - Update note
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -65,7 +82,7 @@ export async function PUT(
     }
 
     // Update the note
-    const note = await prisma.note.update({
+    await prisma.note.update({
       where: {
         id: id,
       },
@@ -73,23 +90,54 @@ export async function PUT(
         title: title !== undefined ? title : undefined,
         content: content !== undefined ? content : undefined,
         summary: summary !== undefined ? summary : undefined,
-        tags: tagIds ? {
-          set: [], // Clear existing tags
-          connect: tagIds.map((id: string) => ({ id })),
-        } : undefined,
         updatedAt: new Date(),
-      },
-      include: {
-        tags: true,
       },
     });
 
-    return NextResponse.json({ note });
+    // Update tags if provided
+    if (tagIds !== undefined) {
+      // Remove existing tags
+      await prisma.noteTag.deleteMany({
+        where: {
+          noteId: id,
+        },
+      });
+
+      // Add new tags
+      if (tagIds && tagIds.length > 0) {
+        await prisma.noteTag.createMany({
+          data: tagIds.map((tagId: string) => ({
+            noteId: id,
+            tagId: tagId,
+          })),
+        });
+      }
+    }
+
+    // Fetch the updated note with tags
+    const updatedNote = await prisma.note.findUnique({
+      where: { id: id },
+      include: {
+        noteTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      note: {
+        ...updatedNote,
+        tags:
+          updatedNote?.noteTags.map((noteTag: NoteTag) => noteTag.tag) || [],
+      },
+    });
   } catch (error) {
     console.error("Error updating note:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -97,7 +145,7 @@ export async function PUT(
 // DELETE /api/notes/[id] - Delete note
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -118,6 +166,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
+    // Delete associated note tags first (cascading should handle this, but being explicit)
+    await prisma.noteTag.deleteMany({
+      where: {
+        noteId: id,
+      },
+    });
+
     // Delete the note
     await prisma.note.delete({
       where: {
@@ -130,7 +185,7 @@ export async function DELETE(
     console.error("Error deleting note:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

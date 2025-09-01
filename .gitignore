@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 SETUP.md
+MIGRATION_GUIDE.md
+FIX_SUMMARY.md
+
+confirm-users.sql

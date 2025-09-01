@@ -2,7 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, Github } from "lucide-react";
 import { toast } from "sonner";
@@ -27,11 +33,15 @@ export default function SignupPage() {
     const newErrors: typeof errors = {};
     if (!name) newErrors.name = "Name is required";
     if (!email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Please enter a valid email";
+    else if (!/\S+@\S+\.\S+/.test(email))
+      newErrors.email = "Please enter a valid email";
     if (!password) newErrors.password = "Password is required";
-    else if (password.length < 6) newErrors.password = "Password must be at least 6 characters";
-    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password";
-    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+    else if (password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+    if (!confirmPassword)
+      newErrors.confirmPassword = "Please confirm your password";
+    else if (password !== confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -67,10 +77,12 @@ export default function SignupPage() {
             }),
           });
         }
-        toast.success("Account created! Please check your email to verify your account.");
+        toast.success(
+          "Account created! Please check your email to verify your account.",
+        );
         // Optionally, redirect or clear form here
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -105,7 +117,10 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Field */}
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="name"
+                  className="text-sm font-medium text-foreground"
+                >
                   Name
                 </label>
                 <div className="relative">
@@ -116,11 +131,12 @@ export default function SignupPage() {
                     autoComplete="name"
                     required
                     value={name}
-                    onChange={e => {
+                    onChange={(e) => {
                       setName(e.target.value);
-                      if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
+                      if (errors.name)
+                        setErrors((prev) => ({ ...prev, name: undefined }));
                     }}
-                    className={`pl-10 ${errors.name ? 'border-destructive' : ''}`}
+                    className={`pl-10 ${errors.name ? "border-destructive" : ""}`}
                     placeholder="Your name"
                   />
                 </div>
@@ -130,7 +146,10 @@ export default function SignupPage() {
               </div>
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-foreground"
+                >
                   Email address
                 </label>
                 <div className="relative">
@@ -141,11 +160,12 @@ export default function SignupPage() {
                     autoComplete="email"
                     required
                     value={email}
-                    onChange={e => {
+                    onChange={(e) => {
                       setEmail(e.target.value);
-                      if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+                      if (errors.email)
+                        setErrors((prev) => ({ ...prev, email: undefined }));
                     }}
-                    className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                    className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                     placeholder="you@email.com"
                   />
                 </div>
@@ -155,7 +175,10 @@ export default function SignupPage() {
               </div>
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-foreground"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -166,11 +189,12 @@ export default function SignupPage() {
                     autoComplete="new-password"
                     required
                     value={password}
-                    onChange={e => {
+                    onChange={(e) => {
                       setPassword(e.target.value);
-                      if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+                      if (errors.password)
+                        setErrors((prev) => ({ ...prev, password: undefined }));
                     }}
-                    className={`pl-10 pr-12 ${errors.password ? 'border-destructive' : ''}`}
+                    className={`pl-10 pr-12 ${errors.password ? "border-destructive" : ""}`}
                     placeholder="Create a password"
                   />
                   <button
@@ -178,7 +202,11 @@ export default function SignupPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {errors.password && (
@@ -187,7 +215,10 @@ export default function SignupPage() {
               </div>
               {/* Confirm Password Field */}
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-foreground"
+                >
                   Confirm password
                 </label>
                 <div className="relative">
@@ -198,11 +229,15 @@ export default function SignupPage() {
                     autoComplete="new-password"
                     required
                     value={confirmPassword}
-                    onChange={e => {
+                    onChange={(e) => {
                       setConfirmPassword(e.target.value);
-                      if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+                      if (errors.confirmPassword)
+                        setErrors((prev) => ({
+                          ...prev,
+                          confirmPassword: undefined,
+                        }));
                     }}
-                    className={`pl-10 pr-12 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                    className={`pl-10 pr-12 ${errors.confirmPassword ? "border-destructive" : ""}`}
                     placeholder="Re-enter your password"
                   />
                   <button
@@ -210,11 +245,17 @@ export default function SignupPage() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.confirmPassword}
+                  </p>
                 )}
               </div>
               {/* Sign Up Button */}
@@ -283,8 +324,11 @@ export default function SignupPage() {
             {/* Login Link */}
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Already have an account?{' '}
-                <a href="/login" className="text-primary hover:text-primary/80 underline font-medium">
+                Already have an account?{" "}
+                <a
+                  href="/login"
+                  className="text-primary hover:text-primary/80 underline font-medium"
+                >
                   Log in
                 </a>
               </p>
@@ -294,4 +338,4 @@ export default function SignupPage() {
       </div>
     </div>
   );
-} 
+}

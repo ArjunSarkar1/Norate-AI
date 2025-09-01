@@ -1,5 +1,4 @@
-import { createStore } from "jotai";
+import { createStore, Store } from "jotai";
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const novelStore: any = createStore();
+export const novelStore: Store = createStore();
 export * from "jotai";

@@ -2,7 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, Github } from "lucide-react";
 import { toast } from "sonner";
@@ -15,40 +21,42 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
   const [redirecting, setRedirecting] = useState(false);
 
   const router = useRouter();
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
-    
+
     if (!email) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!password) {
       newErrors.password = "Password is required";
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("Please fix the errors in the form");
       return;
     }
 
     setLoading(true);
-    
+
     try {
       // Supabase sign in
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -64,7 +72,7 @@ export default function LoginPage() {
           router.replace("/dashboard");
         }, 1000); // Show loading for 1s before redirect
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -86,7 +94,9 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-          <span className="text-lg font-semibold">Loading your dashboard...</span>
+          <span className="text-lg font-semibold">
+            Loading your dashboard...
+          </span>
         </div>
       </div>
     );
@@ -117,7 +127,10 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-foreground"
+                >
                   Email address
                 </label>
                 <div className="relative">
@@ -128,11 +141,12 @@ export default function LoginPage() {
                     autoComplete="email"
                     required
                     value={email}
-                    onChange={e => {
+                    onChange={(e) => {
                       setEmail(e.target.value);
-                      if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+                      if (errors.email)
+                        setErrors((prev) => ({ ...prev, email: undefined }));
                     }}
-                    className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                    className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -143,7 +157,10 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-foreground"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -154,11 +171,12 @@ export default function LoginPage() {
                     autoComplete="current-password"
                     required
                     value={password}
-                    onChange={e => {
+                    onChange={(e) => {
                       setPassword(e.target.value);
-                      if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+                      if (errors.password)
+                        setErrors((prev) => ({ ...prev, password: undefined }));
                     }}
-                    className={`pl-10 pr-12 ${errors.password ? 'border-destructive' : ''}`}
+                    className={`pl-10 pr-12 ${errors.password ? "border-destructive" : ""}`}
                     placeholder="Enter your password"
                   />
                   <button
@@ -166,7 +184,11 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {errors.password && (
@@ -183,7 +205,9 @@ export default function LoginPage() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="rounded border-border text-primary focus:ring-primary/40"
                   />
-                  <span className="text-sm text-muted-foreground">Remember me</span>
+                  <span className="text-sm text-muted-foreground">
+                    Remember me
+                  </span>
                 </label>
                 <button
                   type="button"
@@ -195,9 +219,9 @@ export default function LoginPage() {
               </div>
 
               {/* Sign In Button */}
-              <Button 
-                type="submit" 
-                className="w-full py-3 text-base font-medium" 
+              <Button
+                type="submit"
+                className="w-full py-3 text-base font-medium"
                 disabled={loading}
               >
                 {loading ? (
@@ -217,7 +241,9 @@ export default function LoginPage() {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -249,7 +275,7 @@ export default function LoginPage() {
                 </svg>
                 Continue with Google
               </Button>
-              
+
               <Button
                 type="button"
                 variant="outline"
@@ -265,7 +291,10 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
-                <a href="/signup" className="text-primary hover:text-primary/80 underline font-medium">
+                <a
+                  href="/signup"
+                  className="text-primary hover:text-primary/80 underline font-medium"
+                >
                   Sign up
                 </a>
               </p>
@@ -282,4 +311,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}

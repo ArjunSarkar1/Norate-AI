@@ -16,98 +16,104 @@ interface NoteEditorProps {
   noteId?: string;
   initialData?: {
     title?: string;
-    content?: any;
+    content?: unknown; // Use unknown for stricter typing
     tags?: { id: string; name: string }[];
   };
 }
-
 export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initialData?.title || "");
-  const [content, setContent] = useState(initialData?.content || { type: "doc", content: [] });
-  const [tags, setTags] = useState<{ id: string; name: string }[]>(initialData?.tags || []);
+  const [content, setContent] = useState(
+    initialData?.content || { type: "doc", content: [] },
+  );
+  const [tags, setTags] = useState<{ id: string; name: string }[]>(
+    initialData?.tags || [],
+  );
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [newTag, setNewTag] = useState("");
   const [loading, setLoading] = useState(!!noteId);
   const [redirecting, setRedirecting] = useState(false);
-  const handleManualSaveRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const [currentNoteId, setCurrentNoteId] = useState<string | undefined>(
+    noteId,
+  );
+  const handleManualSaveRef = useRef<() => Promise<void>>(() =>
+    Promise.resolve(),
+  );
 
   // Auto-save functionality
-  const saveNote = useCallback(async (isAutoSave = false) => {
-    if (!content || (isAutoSave && !title && !content)) return;
+  const saveNote = useCallback(
+    async (isAutoSave = false) => {
+      if (!content || (isAutoSave && !title && !content)) return;
 
-    setSaving(true);
-    try {
-      const url = noteId ? `/api/notes/${noteId}` : "/api/notes";
-      const method = noteId ? "PUT" : "POST";
-      
-      const response = await authenticatedFetch(url, {
-        method,
-        body: JSON.stringify({
-          title: title || null,
-          content,
-          tagIds: tags.map(tag => tag.id),
-        }),
-      });
+      setSaving(true);
+      try {
+        const url = currentNoteId
+          ? `/api/notes/${currentNoteId}`
+          : "/api/notes";
+        const method = currentNoteId ? "PUT" : "POST";
 
-      if (response.ok) {
-        const data = await response.json();
-        setLastSaved(new Date());
-        
-        // If this is a new note, redirect to the edit page
-        if (!noteId && data.note) {
-          router.push(`/dashboard/${data.note.id}`);
+        const response = await authenticatedFetch(url, {
+          method,
+          body: JSON.stringify({
+            title: title || null,
+            content,
+            tagIds: tags.map((tag) => tag.id),
+          }),
+        });
+
+        if (response.ok) {
+          // Only update noteId if this was a POST (new note)
+          if (!currentNoteId) {
+            const data = await response.json();
+            if (data.note && data.note.id) {
+              setCurrentNoteId(data.note.id);
+            }
+          }
+          setLastSaved(new Date());
+          if (!isAutoSave) toast.success("Note saved successfully!");
         }
+      } catch (error) {
+        console.error("Error saving note:", error);
+        if (!isAutoSave) {
+          toast.error("Failed to save note. Please try again.");
+        } else {
+          toast.error("Auto-save failed. Your changes may not be saved.");
+        }
+      } finally {
+        setSaving(false);
       }
-    } catch (error) {
-      console.error("Error saving note:", error);
-      if (!isAutoSave) {
-        toast.error("Failed to save note. Please try again.");
-      }
-    } finally {
-      setSaving(false);
-    }
-  }, [title, content, tags, noteId, router]);
+    },
+    [title, content, tags, currentNoteId],
+  );
 
   // Manual save with redirect
-  const handleManualSave = async () => {
+  const handleManualSave = useCallback(async () => {
+    if (
+      !content ||
+      (typeof content === "object" &&
+        (!("type" in content) || !("content" in content)))
+    ) {
+      toast.warning("Please add some content before saving.");
+      return;
+    }
+
     setSaving(true);
     try {
-      const url = noteId ? `/api/notes/${noteId}` : "/api/notes";
-      const method = noteId ? "PUT" : "POST";
-      
-      const response = await authenticatedFetch(url, {
-        method,
-        body: JSON.stringify({
-          title: title || null,
-          content,
-          tagIds: tags.map(tag => tag.id),
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLastSaved(new Date());
-        
-        // Show success toast
-        toast.success("Note saved successfully!");
-        
-        // Show redirecting state
-        setRedirecting(true);
-        
-        // Redirect to dashboard after a short delay
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500); // 1.5 second delay to show loading
-      }
-    } catch (error) {
-      console.error("Error saving note:", error);
-      toast.error("Failed to save note. Please try again.");
+      await saveNote(false);
+      // Show redirecting state
+      setRedirecting(true);
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
+    } catch {
+      // Error already handled in saveNote
+      toast.error("Failed to save and redirect. Please try again.");
     } finally {
       setSaving(false);
     }
-  };
+  }, [saveNote, router, content]);
 
   // Update ref with current function
   useEffect(() => {
@@ -128,35 +134,46 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
   // Keyboard shortcut for manual save
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
         handleManualSaveRef.current();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Load existing note data
   useEffect(() => {
     if (noteId) {
       authenticatedFetch(`/api/notes/${noteId}`)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           if (data.note) {
             setTitle(data.note.title || "");
             setContent(data.note.content || { type: "doc", content: [] });
             setTags(data.note.tags || []);
+            toast.success("Note loaded successfully!");
+          } else {
+            toast.error("Note not found.");
+            router.push("/dashboard");
           }
         })
-        .catch(error => console.error("Error loading note:", error))
+        .catch((error) => {
+          console.error("Error loading note:", error);
+          toast.error("Failed to load note. Redirecting to dashboard.");
+          router.push("/dashboard");
+        })
         .finally(() => setLoading(false));
     }
-  }, [noteId]);
+  }, [noteId, router]);
 
   const addTag = async () => {
-    if (newTag.trim() && !tags.find(tag => tag.name.toLowerCase() === newTag.toLowerCase())) {
+    if (
+      newTag.trim() &&
+      !tags.find((tag) => tag.name.toLowerCase() === newTag.toLowerCase())
+    ) {
       try {
         const response = await authenticatedFetch("/api/tags", {
           method: "POST",
@@ -168,6 +185,11 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
           setTags([...tags, data.tag]);
           setNewTag("");
           toast.success(`Tag "${newTag.trim()}" added successfully!`);
+        } else {
+          const errorData = await response.json();
+          toast.error(
+            errorData.error || "Failed to create tag. Please try again.",
+          );
         }
       } catch (error) {
         console.error("Error creating tag:", error);
@@ -177,7 +199,11 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
   };
 
   const removeTag = (tagId: string) => {
-    setTags(tags.filter(tag => tag.id !== tagId));
+    const removedTag = tags.find((tag) => tag.id === tagId);
+    setTags(tags.filter((tag) => tag.id !== tagId));
+    if (removedTag) {
+      toast.warning(`Tag "${removedTag.name}" removed from note.`);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -234,7 +260,7 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
               )}
             </div>
           </div>
-          <Button 
+          <Button
             onClick={handleManualSave}
             disabled={saving}
             className="flex items-center gap-2"
@@ -266,7 +292,11 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
           <label className="text-sm font-medium">Tags</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag) => (
-              <Badge key={tag.id} variant="secondary" className="flex items-center gap-1">
+              <Badge
+                key={tag.id}
+                variant="secondary"
+                className="flex items-center gap-1"
+              >
                 <Tag className="h-3 w-3" />
                 {tag.name}
                 <button
@@ -305,4 +335,4 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
       </CardContent>
     </Card>
   );
-} 
+}
