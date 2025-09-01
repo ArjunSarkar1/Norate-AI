@@ -200,7 +200,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                    className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -243,7 +243,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                    className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -261,7 +261,7 @@ export default function SignupPage() {
               {/* Sign Up Button */}
               <Button
                 type="submit"
-                className="w-full py-3 text-base font-medium"
+                className="w-full py-3 text-base font-medium cursor-pointer"
                 disabled={loading}
               >
                 {loading ? (
@@ -288,7 +288,7 @@ export default function SignupPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full py-3"
+                className="w-full py-3 cursor-pointer"
                 onClick={() => handleSocialSignup("Google")}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -314,7 +314,7 @@ export default function SignupPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full py-3"
+                className="w-full py-3 cursor-pointer"
                 onClick={() => handleSocialSignup("GitHub")}
               >
                 <Github className="w-5 h-5 mr-2" />

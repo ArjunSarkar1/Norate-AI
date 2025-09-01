@@ -182,7 +182,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -212,7 +212,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-primary hover:text-primary/80 underline"
+                  className="text-sm text-primary hover:text-primary/80 underline cursor-pointer"
                 >
                   Forgot password?
                 </button>
@@ -221,7 +221,7 @@ export default function LoginPage() {
               {/* Sign In Button */}
               <Button
                 type="submit"
-                className="w-full py-3 text-base font-medium"
+                className="w-full py-3 text-base font-medium cursor-pointer"
                 disabled={loading}
               >
                 {loading ? (
@@ -252,7 +252,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full py-3"
+                className="w-full py-3 cursor-pointer"
                 onClick={() => handleSocialLogin("Google")}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -279,7 +279,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full py-3"
+                className="w-full py-3 cursor-pointer"
                 onClick={() => handleSocialLogin("GitHub")}
               >
                 <Github className="w-5 h-5 mr-2" />
@@ -301,13 +301,6 @@ export default function LoginPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-muted/30 rounded-lg border border-border/50">
-          <p className="text-xs text-muted-foreground text-center">
-            <strong>Demo credentials:</strong> demo@example.com / password
-          </p>
-        </div>
       </div>
     </div>
   );

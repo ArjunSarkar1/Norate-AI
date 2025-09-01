@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  devIndicators: false, // disables the Next.js bottom-left SVG indicator
 };
 
 export default nextConfig;

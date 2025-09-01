@@ -40,6 +40,7 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
   const handleManualSaveRef = useRef<() => Promise<void>>(() =>
     Promise.resolve(),
   );
+  const noteLoadedRef = useRef(false);
 
   // Auto-save functionality
   const saveNote = useCallback(
@@ -78,7 +79,8 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
         if (!isAutoSave) {
           toast.error("Failed to save note. Please try again.");
         } else {
-          toast.error("Auto-save failed. Your changes may not be saved.");
+          // Only show auto-save error if it's not a network issue
+          toast.warning("Auto-save failed. Your changes may not be saved.");
         }
       } finally {
         setSaving(false);
@@ -146,7 +148,10 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
 
   // Load existing note data
   useEffect(() => {
-    if (noteId) {
+    if (noteId && !noteLoadedRef.current) {
+      noteLoadedRef.current = true;
+      setLoading(true);
+
       authenticatedFetch(`/api/notes/${noteId}`)
         .then((response) => response.json())
         .then((data) => {
@@ -154,7 +159,15 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
             setTitle(data.note.title || "");
             setContent(data.note.content || { type: "doc", content: [] });
             setTags(data.note.tags || []);
-            toast.success("Note loaded successfully!");
+            // Only show success toast if it's actually a meaningful load (not empty note)
+            if (
+              data.note.title ||
+              (data.note.content &&
+                data.note.content.content &&
+                data.note.content.content.length > 0)
+            ) {
+              toast.success("Note loaded successfully!");
+            }
           } else {
             toast.error("Note not found.");
             router.push("/dashboard");
@@ -166,6 +179,10 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
           router.push("/dashboard");
         })
         .finally(() => setLoading(false));
+    } else if (!noteId) {
+      // Reset the ref when switching to a new note (without noteId)
+      noteLoadedRef.current = false;
+      setLoading(false);
     }
   }, [noteId, router]);
 

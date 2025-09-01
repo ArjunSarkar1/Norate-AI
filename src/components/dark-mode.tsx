@@ -18,7 +18,7 @@ function DarkModeToggle() {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="relative"
+      className="relative cursor-pointer"
       aria-label="Toggle theme"
     >
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
