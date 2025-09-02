@@ -245,7 +245,7 @@ export default function NoteList() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive cursor-pointer"
                       onClick={() => setNoteToDelete(note)}
                     >
                       <Trash2 className="h-4 w-4" />

@@ -13,14 +13,18 @@ export default function DashboardPage() {
       <aside className="w-64 bg-card border-r border-border flex flex-col p-4 gap-4">
         <div className="mb-6">
           <h2 className="text-lg font-bold mb-2">Norate AI</h2>
-          <Button asChild className="w-full mb-2" variant={pathname === "/dashboard/new" ? "default" : "outline"}>
-            <Link href="/dashboard/new">+ New Note</Link>
+          <Button
+            asChild
+            className="w-full mb-2"
+            variant={pathname === "/dashboard/new" ? "default" : "outline"}
+          >
+            <Link href="/dashboard/new">New Note</Link>
           </Button>
         </div>
         <nav className="flex-1">
           <ul className="space-y-2">
             <li>
-              <Link href="/dashboard" className={pathname === "/dashboard" ? "text-primary font-semibold" : "text-foreground hover:underline"}>All Notes</Link>
+              <h2 className="mb-2 text-primary font-semibold">All Notes</h2>
             </li>
             <li>
               <span className="text-muted-foreground">Tags (coming soon)</span>
@@ -28,17 +32,21 @@ export default function DashboardPage() {
           </ul>
         </nav>
         <div className="mt-auto">
-          <Button variant="outline" className="w-full">Settings</Button>
+          <Button variant="outline" className="w-full">
+            Settings
+          </Button>
         </div>
       </aside>
       {/* Main Area */}
       <main className="flex-1 p-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Your Notes</h1>
-          <p className="text-muted-foreground">Create, organize, and find your notes with AI-powered search.</p>
+          <h1 className="text-2xl font-bold mb-2">Notes</h1>
+          <p className="text-muted-foreground">
+            Create, organize and find notes.
+          </p>
         </div>
-          <NoteList />
+        <NoteList />
       </main>
     </div>
   );
-} 
+}

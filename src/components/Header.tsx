@@ -19,9 +19,11 @@ function Header() {
     };
     getUser();
     // Listen for auth state changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
     return () => {
       listener?.subscription.unsubscribe();
     };
@@ -49,13 +51,19 @@ function Header() {
         />
       </Link>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 cursor-pointer">
         {user ? (
           <>
             <Button asChild variant="outline" className="hidden sm:block">
               <Link href="/dashboard">Dashboard</Link>
             </Button>
-            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="cursor-pointer"
+            >
+              Logout
+            </Button>
           </>
         ) : (
           <>
