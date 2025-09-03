@@ -9,8 +9,11 @@ export async function getAuthenticatedUser(req: NextRequest) {
   }
 
   const token = authHeader.substring(7);
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+
   if (error || !user) {
     return null;
   }
@@ -25,7 +28,7 @@ export async function getAuthenticatedUser(req: NextRequest) {
         email: user.email!,
       },
     });
-    
+
     return dbUser;
   } catch (error) {
     console.error("Error syncing user:", error);

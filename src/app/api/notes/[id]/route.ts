@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
+import {
+  generateEmbedding,
+  extractTextFromTipTapContent,
+} from "@/lib/ai-service";
 
 interface NoteTag {
   tag: {
@@ -81,6 +85,26 @@ export async function PUT(
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
+    // Generate new embedding if content was updated
+    let embedding: number[] | undefined = undefined;
+    if (content !== undefined) {
+      try {
+        const text = extractTextFromTipTapContent(content);
+        const fullText = `${title || existingNote.title || ""} ${text}`.trim();
+
+        if (fullText.length >= 10) {
+          const embeddingResult = await generateEmbedding(fullText);
+          embedding = embeddingResult.embedding;
+        }
+      } catch (embeddingError) {
+        console.warn(
+          "Failed to generate embedding for updated note:",
+          embeddingError,
+        );
+        // Don't fail the note update if embedding generation fails
+      }
+    }
+
     // Update the note
     await prisma.note.update({
       where: {
@@ -90,6 +114,7 @@ export async function PUT(
         title: title !== undefined ? title : undefined,
         content: content !== undefined ? content : undefined,
         summary: summary !== undefined ? summary : undefined,
+        embedding: embedding !== undefined ? embedding : undefined,
         updatedAt: new Date(),
       },
     });

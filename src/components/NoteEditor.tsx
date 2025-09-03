@@ -5,12 +5,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Save, ArrowLeft, Tag, Plus, Loader2 } from "lucide-react";
+import { Save, ArrowLeft, Tag, Plus, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authenticatedFetch } from "@/lib/utils";
 import { toast } from "sonner";
 import EnhancedEditor from "./EnhancedEditor";
+import AutoTitle from "./AutoTitle";
 
 interface NoteEditorProps {
   noteId?: string;
@@ -37,6 +38,7 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
   const [currentNoteId, setCurrentNoteId] = useState<string | undefined>(
     noteId,
   );
+  const [showAutoTitle, setShowAutoTitle] = useState(false);
   const handleManualSaveRef = useRef<() => Promise<void>>(() =>
     Promise.resolve(),
   );
@@ -108,7 +110,7 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
       // Redirect to dashboard after a short delay
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1500);
+      }, 700);
     } catch {
       // Error already handled in saveNote
       toast.error("Failed to save and redirect. Please try again.");
@@ -128,7 +130,7 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
       if (content && Object.keys(content).length > 0) {
         saveNote(true);
       }
-    }, 3000); // Auto-save after 3 seconds of inactivity
+    }, 1000); // Auto-save after 1 second of inactivity
 
     return () => clearTimeout(timeoutId);
   }, [content, saveNote]);
@@ -272,7 +274,7 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
               </CardTitle>
               {lastSaved && (
                 <p className="text-xs text-muted-foreground">
-                  Last saved: {lastSaved.toLocaleTimeString()}
+                  Last auto-saved: {lastSaved.toLocaleTimeString()}
                 </p>
               )}
             </div>
@@ -293,15 +295,40 @@ export default function NoteEditor({ noteId, initialData }: NoteEditorProps) {
       </CardHeader>
 
       <CardContent className="p-6 space-y-6">
-        {/* Title Input */}
+        {/* Title Input with AI Suggestions */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Title</label>
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">Title</label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAutoTitle(!showAutoTitle)}
+              className="text-xs"
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
+              {showAutoTitle ? "Hide" : "AI Suggestions"}
+            </Button>
+          </div>
           <Input
             placeholder="Enter note title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="text-lg"
           />
+          {showAutoTitle && (
+            <AutoTitle
+              noteId={currentNoteId}
+              content={content}
+              currentTitle={title}
+              onTitleSelect={(selectedTitle) => setTitle(selectedTitle)}
+              onTitleApply={(appliedTitle) => {
+                setTitle(appliedTitle);
+                setShowAutoTitle(false);
+              }}
+              compact={true}
+              className="mt-2"
+            />
+          )}
         </div>
 
         {/* Tags */}

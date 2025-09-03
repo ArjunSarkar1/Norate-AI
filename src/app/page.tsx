@@ -1,19 +1,25 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { AuthUser } from "@supabase/supabase-js";
-import { 
-  Brain, 
-  Search, 
-  FileText, 
-  Sparkles, 
-  Zap, 
+import {
+  Brain,
+  Search,
+  FileText,
+  Sparkles,
+  Zap,
   Shield,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 
 function MainPage() {
@@ -27,11 +33,13 @@ function MainPage() {
       setLoading(false);
     };
     getUser();
-    
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
     return () => {
       listener?.subscription.unsubscribe();
     };
@@ -41,33 +49,39 @@ function MainPage() {
     {
       icon: Brain,
       title: "AI-Powered Summarization",
-      description: "Automatically generate concise summaries of your notes using advanced AI technology."
+      description:
+        "Automatically generate concise summaries of your notes using advanced AI technology.",
     },
     {
       icon: Search,
       title: "Semantic Search",
-      description: "Find your notes using natural language queries. AI understands context, not just keywords."
+      description:
+        "Find your notes using natural language queries. AI understands context, not just keywords.",
     },
     {
       icon: FileText,
       title: "Rich Text Editor",
-      description: "Create beautiful, structured notes with our powerful rich text editor and formatting tools."
+      description:
+        "Create beautiful, structured notes with our powerful rich text editor and formatting tools.",
     },
     {
       icon: Sparkles,
       title: "Auto-Titling",
-      description: "Let AI suggest perfect titles for your notes based on their content and context."
+      description:
+        "Let AI suggest perfect titles for your notes based on their content and context.",
     },
     {
       icon: Zap,
       title: "Real-time Sync",
-      description: "Your notes sync instantly across all devices with real-time updates and collaboration."
+      description:
+        "Your notes sync instantly across all devices with real-time updates and collaboration.",
     },
     {
       icon: Shield,
       title: "Secure & Private",
-      description: "Your data is encrypted and secure. We never access your personal notes or information."
-    }
+      description:
+        "Your data is encrypted and secure. We never access your personal notes or information.",
+    },
   ];
 
   const benefits = [
@@ -76,7 +90,7 @@ function MainPage() {
     "Create better notes with intelligent suggestions",
     "Access your notes anywhere, anytime",
     "Collaborate seamlessly with team members",
-    "Export and share notes in multiple formats"
+    "Export and share notes in multiple formats",
   ];
 
   if (loading) {
@@ -98,7 +112,7 @@ function MainPage() {
             with AI
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Experience the future of note-taking with intelligent AI assistance. 
+            Experience the future of note-taking with intelligent AI assistance.
             Create, organize, and discover your notes like never before.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -114,7 +128,12 @@ function MainPage() {
                 <Button asChild size="lg" className="text-lg px-8 py-6">
                   <Link href="/signup">Get Started Free</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="text-lg px-8 py-6"
+                >
                   <Link href="/login">Sign In</Link>
                 </Button>
               </>
@@ -131,12 +150,16 @@ function MainPage() {
               Powerful Features for Modern Note-Taking
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to capture, organize, and discover your thoughts with AI assistance.
+              Everything you need to capture, organize, and discover your
+              thoughts with AI assistance.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="border-border hover:border-primary/50 transition-colors">
+              <Card
+                key={index}
+                className="border-border hover:border-primary/50 transition-colors"
+              >
                 <CardHeader>
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                     <feature.icon className="h-6 w-6 text-primary" />
@@ -162,7 +185,8 @@ function MainPage() {
               Why Choose Norate AI?
             </h2>
             <p className="text-lg text-muted-foreground">
-              Join thousands of users who have transformed their note-taking experience.
+              Join thousands of users who have transformed their note-taking
+              experience.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,7 +207,8 @@ function MainPage() {
             Ready to Get Started?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of users who have already transformed their note-taking with AI.
+            Join thousands of users who have already transformed their
+            note-taking with AI.
           </p>
           {user ? (
             <Button asChild size="lg" className="text-lg px-8 py-6">

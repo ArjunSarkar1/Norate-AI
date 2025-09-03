@@ -10,18 +10,21 @@ import type { AuthUser } from "@supabase/supabase-js";
 
 function Header() {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Get current user on mount
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
+      setLoading(false);
     };
     getUser();
     // Listen for auth state changes
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
+        setLoading(false);
       }
     );
     return () => {

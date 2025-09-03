@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/db/prisma";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { JsonValue } from "@prisma/client/runtime/library";
+import {
+  generateEmbedding,
+  extractTextFromTipTapContent,
+} from "@/lib/ai-service";
 
 interface NoteTag {
   tag: {
@@ -78,12 +82,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Generate embedding for the note
+    let embedding: number[] | null = null;
+    try {
+      const text = extractTextFromTipTapContent(content);
+      const fullText = `${title || ""} ${text}`.trim();
+
+      if (fullText.length >= 10) {
+        const embeddingResult = await generateEmbedding(fullText);
+        embedding = embeddingResult.embedding;
+      }
+    } catch (embeddingError) {
+      console.warn(
+        "Failed to generate embedding for new note:",
+        embeddingError,
+      );
+      // Don't fail the note creation if embedding generation fails
+    }
+
     // Create the note first
     const note = await prisma.note.create({
       data: {
         title: title || null,
         content: content,
         userId: user.id,
+        embedding: embedding,
       },
       include: {
         noteTags: {
